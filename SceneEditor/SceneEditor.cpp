@@ -201,6 +201,86 @@ void SceneEditor::Update()
             timer.Stop();
     }
 
+    if (input->KeyPress('1'))
+    {
+		GenericGeometry geo("Resources/ball.obj", White);
+
+        Object geoObj;
+        geoObj.mesh = new Mesh(geo);
+        XMStoreFloat4x4(&geoObj.world,
+            XMMatrixIdentity());
+        geoObj.vbuffer = new VertexBuffer<Vertex>(geo);
+        geoObj.ibuffer = new IndexBuffer<uint>(geo);
+        for (int i = 0; i < 4; i++) {
+            geoObj.cbuffer[i] = new ConstantBuffer<Constants>();
+        }
+        scene.push_back(geoObj);
+    }
+
+    if (input->KeyPress('2'))
+    {
+        GenericGeometry geo("Resources/thorus.obj", White);
+
+        Object geoObj;
+        geoObj.mesh = new Mesh(geo);
+        XMStoreFloat4x4(&geoObj.world,
+            XMMatrixIdentity());
+        geoObj.vbuffer = new VertexBuffer<Vertex>(geo);
+        geoObj.ibuffer = new IndexBuffer<uint>(geo);
+        for (int i = 0; i < 4; i++) {
+            geoObj.cbuffer[i] = new ConstantBuffer<Constants>();
+        }
+        scene.push_back(geoObj);
+    }
+
+    if (input->KeyPress('3'))
+    {
+        GenericGeometry geo("Resources/monkey.obj", White);
+
+        Object geoObj;
+        geoObj.mesh = new Mesh(geo);
+        XMStoreFloat4x4(&geoObj.world,
+            XMMatrixIdentity());
+        geoObj.vbuffer = new VertexBuffer<Vertex>(geo);
+        geoObj.ibuffer = new IndexBuffer<uint>(geo);
+        for (int i = 0; i < 4; i++) {
+            geoObj.cbuffer[i] = new ConstantBuffer<Constants>();
+        }
+        scene.push_back(geoObj);
+    }
+
+    if (input->KeyPress('4'))
+    {
+        GenericGeometry geo("Resources/capsule.obj", White);
+
+        Object geoObj;
+        geoObj.mesh = new Mesh(geo);
+        XMStoreFloat4x4(&geoObj.world,
+            XMMatrixIdentity());
+        geoObj.vbuffer = new VertexBuffer<Vertex>(geo);
+        geoObj.ibuffer = new IndexBuffer<uint>(geo);
+        for (int i = 0; i < 4; i++) {
+            geoObj.cbuffer[i] = new ConstantBuffer<Constants>();
+        }
+        scene.push_back(geoObj);
+    }
+
+    if (input->KeyPress('5'))
+    {
+        GenericGeometry geo("Resources/house.obj", White);
+
+        Object geoObj;
+        geoObj.mesh = new Mesh(geo);
+        XMStoreFloat4x4(&geoObj.world,
+            XMMatrixIdentity());
+        geoObj.vbuffer = new VertexBuffer<Vertex>(geo);
+        geoObj.ibuffer = new IndexBuffer<uint>(geo);
+        for (int i = 0; i < 4; i++) {
+            geoObj.cbuffer[i] = new ConstantBuffer<Constants>();
+        }
+        scene.push_back(geoObj);
+    }
+
 	// ativa ou desativa múltiplas visualizações
     if (input->KeyPress('V'))
     {
@@ -326,6 +406,10 @@ void SceneEditor::Finalize()
     // libera memória alocada
     rootSignature->Release();
     pipelineState->Release();
+
+    linePipelineState->Release();
+    delete lineVBuffer;
+    delete lineCBuffer;
 
     for (auto& obj : scene)
     {

@@ -19,6 +19,10 @@
 #include <DirectXMath.h>
 #include <DirectXColors.h>
 #include "Colors.h"
+#include <string>
+#include <fstream>
+#include <sstream>
+
 using namespace DirectX;
 using std::vector;
 
@@ -129,6 +133,15 @@ struct Quad : public Geometry
     Quad(float width,                       // largura
         float height,                       // altura
         XMFLOAT4 color = Green);            // cor
+};
+
+// -------------------------------------------------------------------------------
+// GenericGeometry
+// -------------------------------------------------------------------------------
+
+struct GenericGeometry : public Geometry
+{
+    GenericGeometry(const std::string& filePath, XMFLOAT4 color);
 };
 
 // -------------------------------------------------------------------------------

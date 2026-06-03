@@ -461,4 +461,54 @@ Quad::Quad(float width, float height, XMFLOAT4 color)
         indices.push_back(i);
 }
 
+//                                    _________________
+// __________________________________/ GenericGeometry \____________________________________
+// -----------------------------------------------------------------------------------------
+
+GenericGeometry::GenericGeometry(const std::string& filePath, XMFLOAT4 color)
+{
+    std::ifstream file(filePath);
+
+    if (!file.is_open())
+        return;
+
+    std::string line;
+
+
+    while (std::getline(file, line))
+    {
+        std::istringstream iss(line);
+        std::string prefix;
+        iss >> prefix;
+
+        // Se a linha começar com "v ", é a posição de um vértice
+        if (prefix == "v")
+        {
+            float x, y, z;
+            iss >> x >> y >> z;
+
+            Vertex vertex;
+            vertex.pos = XMFLOAT3(x, y, z);
+            vertex.color = color;
+
+            vertices.push_back(vertex);
+        }
+        // Se a linha começar com "f ", são os índices de uma face (triângulo)
+        else if (prefix == "f")
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                std::string vertexData;
+                iss >> vertexData;
+
+                size_t slashPos = vertexData.find('/');
+                std::string posIndexStr = vertexData.substr(0, slashPos);
+
+                uint posIndex = std::stoul(posIndexStr);
+                indices.push_back(posIndex - 1);
+            }
+        }
+    }
+}
+
 // -------------------------------------------------------------------------------
