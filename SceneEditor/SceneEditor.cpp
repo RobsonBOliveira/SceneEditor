@@ -19,6 +19,24 @@ Timer SceneEditor::timer;
 
 void SceneEditor::Init()
 {
+    // -------------------------------------------
+    // Divisórias da tela
+    // -------------------------------------------
+
+    Vertex lineVerts[4] = {
+        { XMFLOAT3(0.0f, -1.0f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+        { XMFLOAT3(0.0f,  1.0f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+        { XMFLOAT3(-1.0f, 0.0f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+        { XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }
+    };
+
+    lineVBuffer = new VertexBuffer<Vertex>(lineVerts, 4);
+
+    lineCBuffer = new ConstantBuffer<Constants>();
+    Constants identityMatrix;
+    XMStoreFloat4x4(&identityMatrix.WorldViewProj, XMMatrixIdentity());
+    lineCBuffer->Copy(&identityMatrix);
+
     // --------------------------------------
     // Transformação, Visualização e Projeção
     // --------------------------------------
@@ -34,10 +52,10 @@ void SceneEditor::Init()
 
     // inicializa a matriz de projeção ortográfica
     float aspectRatio = float(window->Width()) / float(window->Height());
-	XMStoreFloat4x4(&ProjO, XMMatrixOrthographicLH(10 * aspectRatio, 10, 1.0f, 100.0f));
+	XMStoreFloat4x4(&ProjO, XMMatrixOrthographicLH(4 * aspectRatio, 4, 1.0f, 100.0f));
 
     // matriz de visualização frontal
-    XMVECTOR posF = XMVectorSet(0, 0, 10, 1);
+    XMVECTOR posF = XMVectorSet(0, 0, 5, 1);
     XMVECTOR targetF = XMVectorZero();
     XMVECTOR upF = XMVectorSet(0, 1, 0, 0);
     views[0] = XMMatrixLookAtLH(posF, targetF, upF);
@@ -221,6 +239,8 @@ void SceneEditor::Draw()
     // desenha objetos da cena
     if (multipleViews)
     {
+        drawDivisorLines();
+
         // carrega matriz de projeção
         XMMATRIX proj = XMLoadFloat4x4(&ProjO);
 
@@ -316,6 +336,20 @@ void SceneEditor::Finalize()
             delete obj.cbuffer[i];
         }
     }
+}
+
+// ------------------------------------------------------------------------------
+
+void SceneEditor::drawDivisorLines()
+{
+    graphics->CommandList()->SetPipelineState(linePipelineState);
+    graphics->CommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+    graphics->CommandList()->SetGraphicsRootConstantBufferView(0, lineCBuffer->View());
+    graphics->CommandList()->IASetVertexBuffers(0, 1, lineVBuffer->View());
+    graphics->CommandList()->DrawInstanced(4, 1, 0, 0);
+
+    graphics->CommandList()->SetPipelineState(pipelineState);
+    graphics->CommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 // ------------------------------------------------------------------------------

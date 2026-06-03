@@ -43,6 +43,9 @@ class SceneEditor : public App
 private:
     ID3D12RootSignature* rootSignature = nullptr;
     ID3D12PipelineState* pipelineState = nullptr;
+    ID3D12PipelineState* linePipelineState = nullptr;
+    VertexBuffer<Vertex>* lineVBuffer = nullptr;
+    ConstantBuffer<Constants>* lineCBuffer = nullptr;
     
     OrbitCamera camera;
     XMFLOAT4X4 Proj;
@@ -61,6 +64,7 @@ public:
     void Update();
     void Draw();
     void Finalize();
+	void drawDivisorLines();
 
     static void Pause()  { timer.Stop();  }
     static void Resume() { timer.Start(); }

@@ -151,6 +151,11 @@ void SceneEditor::BuildPipelineState()
     pso.SampleDesc.Quality = graphics->Quality();
     graphics->Device()->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&pipelineState));
 
+    // Alteração para o desneho das linhas
+    pso.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+    
+    graphics->Device()->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&linePipelineState));
+
     vertexShader->Release();
     pixelShader->Release();
 }
