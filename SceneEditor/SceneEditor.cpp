@@ -190,7 +190,37 @@ void SceneEditor::Update()
     if (input->KeyPress(VK_ESCAPE))
         window->Close();
 
-    // ativa ou desativa o giro do objeto
+    if (input->KeyPress('B'))
+    {
+        Box box(2.0f, 2.0f, 2.0f, Orange);
+
+        Object boxObj;
+        XMStoreFloat4x4(&boxObj.world,
+            XMMatrixScaling(0.4f, 0.4f, 0.4f));
+        boxObj.mesh = new Mesh(box);
+        boxObj.vbuffer = new VertexBuffer<Vertex>(box);
+        boxObj.ibuffer = new IndexBuffer<uint>(box);
+        for (int i = 0; i < 4; i++) {
+            boxObj.cbuffer[i] = new ConstantBuffer<Constants>();
+        }
+        scene.push_back(boxObj);
+    }
+
+    if (input->KeyPress('C'))
+    {
+        Cylinder cylinder(1.0f, 0.5f, 3.0f, 20, 20, Yellow);
+        Object cylinderObj;
+        XMStoreFloat4x4(&cylinderObj.world,
+            XMMatrixScaling(0.5f, 0.5f, 0.5f));
+        cylinderObj.mesh = new Mesh(cylinder);
+        cylinderObj.vbuffer = new VertexBuffer<Vertex>(cylinder);
+        cylinderObj.ibuffer = new IndexBuffer<uint>(cylinder);
+        for (int i = 0; i < 4; i++) {
+            cylinderObj.cbuffer[i] = new ConstantBuffer<Constants>();
+        }
+        scene.push_back(cylinderObj);
+    }
+
     if (input->KeyPress('S'))
     {
         spinning = !spinning;
@@ -199,6 +229,65 @@ void SceneEditor::Update()
             timer.Start();
         else
             timer.Stop();
+
+        Sphere sphere(1.0f, 20, 20, Crimson);
+        Object sphereObj;
+        XMStoreFloat4x4(&sphereObj.world,
+            XMMatrixScaling(0.5f, 0.5f, 0.5f));
+        sphereObj.mesh = new Mesh(sphere);
+        sphereObj.vbuffer = new VertexBuffer<Vertex>(sphere);
+        sphereObj.ibuffer = new IndexBuffer<uint>(sphere);
+        for (int i = 0; i < 4; i++) {
+            sphereObj.cbuffer[i] = new ConstantBuffer<Constants>();
+        }
+        scene.push_back(sphereObj);
+    }
+
+    if (input->KeyPress('G'))
+    {
+		GeoSphere sphere(1.0f, 3, Crimson);
+        Object sphereObj;
+        XMStoreFloat4x4(&sphereObj.world,
+            XMMatrixScaling(0.5f, 0.5f, 0.5f));
+        sphereObj.mesh = new Mesh(sphere);
+        sphereObj.vbuffer = new VertexBuffer<Vertex>(sphere);
+        sphereObj.ibuffer = new IndexBuffer<uint>(sphere);
+        for (int i = 0; i < 4; i++) {
+            sphereObj.cbuffer[i] = new ConstantBuffer<Constants>();
+        }
+        scene.push_back(sphereObj);
+    }
+
+
+    // adicionar plano no 'L', tecla 'P' pausa a engine
+    if (input->KeyPress('L'))
+    {
+        Grid grid(3.0f, 3.0f, 20, 20, Gray);
+        Object gridObj;
+        gridObj.mesh = new Mesh(grid);
+        XMStoreFloat4x4(&gridObj.world,
+            XMMatrixIdentity());
+        gridObj.vbuffer = new VertexBuffer<Vertex>(grid);
+        gridObj.ibuffer = new IndexBuffer<uint>(grid);
+        for (int i = 0; i < 4; i++) {
+            gridObj.cbuffer[i] = new ConstantBuffer<Constants>();
+        }
+        scene.push_back(gridObj);
+    }
+
+    if (input->KeyPress('Q'))
+    {
+		Quad quad(2.0f, 2.0f, Blue);
+		Object quadObj;
+		quadObj.mesh = new Mesh(quad);
+		XMStoreFloat4x4(&quadObj.world,
+			XMMatrixIdentity());
+		quadObj.vbuffer = new VertexBuffer<Vertex>(quad);
+		quadObj.ibuffer = new IndexBuffer<uint>(quad);
+		for (int i = 0; i < 4; i++) {
+			quadObj.cbuffer[i] = new ConstantBuffer<Constants>();
+		}
+		scene.push_back(quadObj);
     }
 
     if (input->KeyPress('1'))
@@ -235,7 +324,7 @@ void SceneEditor::Update()
 
     if (input->KeyPress('3'))
     {
-        GenericGeometry geo("Resources/monkey.obj", White);
+        GenericGeometry geo("Resources/cow.obj", White);
 
         Object geoObj;
         geoObj.mesh = new Mesh(geo);
@@ -287,8 +376,8 @@ void SceneEditor::Update()
 		multipleViews = !multipleViews;
     }
 
-    if(!multipleViews)
-        camera.Update();
+	// atualiza posição da câmera
+    camera.Update();
 
     // constrói a matriz de visualização
     XMVECTOR pos = XMVectorSet(camera.x, camera.y, camera.z, 1.0f);
