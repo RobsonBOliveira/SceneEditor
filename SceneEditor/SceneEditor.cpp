@@ -210,10 +210,8 @@ void SceneEditor::Update()
 
     if (input->KeyPress(VK_DELETE))
     {
-        // Verifica se há de fato um objeto selecionado e válido
         if (selectedObjectIndex >= 0 && selectedObjectIndex < scene.size())
         {
-            // 1. Libera a memória alocada para os buffers deste objeto
             delete scene[selectedObjectIndex].mesh;
             delete scene[selectedObjectIndex].vbuffer;
             delete scene[selectedObjectIndex].ibuffer;
@@ -221,15 +219,15 @@ void SceneEditor::Update()
                 delete scene[selectedObjectIndex].cbuffer[i];
             }
 
-            // 2. Remove do vetor da cena
+			// remove o objeto da cena
             scene.erase(scene.begin() + selectedObjectIndex);
 
-            // 3. Ajusta o índice da seleção
+            // ajusta o index
             if (scene.empty()) {
-                selectedObjectIndex = -1; // Cena ficou vazia
+                selectedObjectIndex = -1;
             }
             else if (selectedObjectIndex >= scene.size()) {
-                selectedObjectIndex = (int)scene.size() - 1; // Seleciona o anterior se o último foi deletado
+                selectedObjectIndex = (int)scene.size() - 1;
             }
         }
     }
@@ -400,6 +398,22 @@ void SceneEditor::Update()
         geoObj.mesh = new Mesh(geo);
         XMStoreFloat4x4(&geoObj.world,
             XMMatrixIdentity());
+        geoObj.vbuffer = new VertexBuffer<Vertex>(geo);
+        geoObj.ibuffer = new IndexBuffer<uint>(geo);
+        for (int i = 0; i < 4; i++) {
+            geoObj.cbuffer[i] = new ConstantBuffer<Constants>();
+        }
+        scene.push_back(geoObj);
+    }
+
+    if (input->KeyPress('6'))
+    {
+        GenericGeometry geo("Resources/cow.obj", Gray);
+
+        Object geoObj;
+        geoObj.mesh = new Mesh(geo);
+        XMStoreFloat4x4(&geoObj.world,
+            XMMatrixScaling(0.3f, 0.3f, 0.3f));
         geoObj.vbuffer = new VertexBuffer<Vertex>(geo);
         geoObj.ibuffer = new IndexBuffer<uint>(geo);
         for (int i = 0; i < 4; i++) {
