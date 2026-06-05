@@ -190,12 +190,13 @@ void SceneEditor::Update()
     if (input->KeyPress(VK_ESCAPE))
         window->Close();
 
+    // lógica de seleção
     if (input->KeyPress(VK_TAB))
     {
         if (!scene.empty())
         {
             if(scene.size() == 1 && selectedObjectIndex == 0)
-				selectedObjectIndex = -1; // deseleciona o único objeto na cena
+				selectedObjectIndex = -1;
             else
             {
                 selectedObjectIndex++;
@@ -212,6 +213,8 @@ void SceneEditor::Update()
     {
         if (selectedObjectIndex >= 0 && selectedObjectIndex < scene.size())
         {
+            graphics->WaitForGpu();
+
             delete scene[selectedObjectIndex].mesh;
             delete scene[selectedObjectIndex].vbuffer;
             delete scene[selectedObjectIndex].ibuffer;
@@ -221,14 +224,7 @@ void SceneEditor::Update()
 
 			// remove o objeto da cena
             scene.erase(scene.begin() + selectedObjectIndex);
-
-            // ajusta o index
-            if (scene.empty()) {
-                selectedObjectIndex = -1;
-            }
-            else if (selectedObjectIndex >= scene.size()) {
-                selectedObjectIndex = (int)scene.size() - 1;
-            }
+            selectedObjectIndex = -1;
         }
     }
 
@@ -295,8 +291,8 @@ void SceneEditor::Update()
     }
 
 
-    // adicionar plano no 'L', tecla 'P' pausa a engine
-    if (input->KeyPress('L'))
+    // adicionar plano no 'X', tecla 'P' pausa a engine
+    if (input->KeyPress('X'))
     {
         Grid grid(3.0f, 3.0f, 20, 20, Gray);
         Object gridObj;
@@ -428,6 +424,60 @@ void SceneEditor::Update()
 		multipleViews = !multipleViews;
     }
 
+    if (selectedObjectIndex >= 0 && selectedObjectIndex < scene.size())
+    {
+        Object& obj = scene[selectedObjectIndex];
+        XMMATRIX world = XMLoadFloat4x4(&obj.world);
+
+        // translação
+        // Setas (X, Z) e PageUp/PageDown (Y)
+        float moveSpeed = 0.001f;
+        float tx = 0.0f, ty = 0.0f, tz = 0.0f;
+
+        if (input->KeyDown(VK_RIGHT)) tx -= moveSpeed;
+        if (input->KeyDown(VK_LEFT))  tx += moveSpeed;
+        if (input->KeyDown(VK_UP))    tz -= moveSpeed;
+        if (input->KeyDown(VK_DOWN))  tz += moveSpeed;
+        if (input->KeyDown(VK_PRIOR)) ty += moveSpeed;
+        if (input->KeyDown(VK_NEXT))  ty -= moveSpeed;
+
+        if (tx != 0.0f || ty != 0.0f || tz != 0.0f)
+        {
+            world = world * XMMatrixTranslation(tx, ty, tz);
+        }
+
+        // rotação
+        // Teclas I, K, J, L, U, O
+        float rotSpeed = 0.001f;
+        float rx = 0.0f, ry = 0.0f, rz = 0.0f;
+
+        if (input->KeyDown('I')) rx = rotSpeed; // inclinar pra frente (Eixo X)
+        if (input->KeyDown('K')) rx = -rotSpeed; // inclinar pra trás (Eixo X)
+        if (input->KeyDown('J')) ry = -rotSpeed; // virar esquerda (Eixo Y)
+        if (input->KeyDown('L')) ry = rotSpeed; // virar direita (Eixo Y)
+        if (input->KeyDown('U')) rz = rotSpeed; // rolar esquerda (Eixo Z)
+        if (input->KeyDown('O')) rz = -rotSpeed; // rolar direita (Eixo Z)
+
+        if (rx != 0.0f || ry != 0.0f || rz != 0.0f)
+        {
+            world = XMMatrixRotationX(rx) * XMMatrixRotationY(ry) * XMMatrixRotationZ(rz) * world;
+        }
+
+        // escala
+        // - e = (os que não são do numpad)
+        float scaleMultiplier = 1.0f;
+
+        if (input->KeyDown(VK_OEM_PLUS))      scaleMultiplier = 1.001f;
+        if (input->KeyDown(VK_OEM_MINUS)) scaleMultiplier = 0.999f;
+
+        if (scaleMultiplier != 1.0f)
+        {
+            world = XMMatrixScaling(scaleMultiplier, scaleMultiplier, scaleMultiplier) * world;
+        }
+
+        XMStoreFloat4x4(&obj.world, world);
+    }
+
 	// atualiza posição da câmera
     camera.Update();
 
@@ -437,12 +487,6 @@ void SceneEditor::Update()
     XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     views[3] = XMMatrixLookAtLH(pos, target, up);
 
-
-    // modifica matriz de mundo da esfera
-    /*XMStoreFloat4x4(&scene[2].world,
-        XMMatrixScaling(0.5f, 0.5f, 0.5f) *
-        XMMatrixRotationY(float(timer.Elapsed())) *
-        XMMatrixTranslation(0.0f, 0.5f, 0.0f));*/
 }
 
 // ------------------------------------------------------------------------------
