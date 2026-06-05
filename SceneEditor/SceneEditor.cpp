@@ -112,9 +112,9 @@ void SceneEditor::Init()
     // Criação das Geometrias: Vértices e Índices
     // -------------------------------------------
 
-    Box box(2.0f, 2.0f, 2.0f, Orange);
-    Cylinder cylinder(1.0f, 0.5f, 3.0f, 20, 20, Yellow);
-    Sphere sphere(1.0f, 20, 20, Crimson);
+    Box box(2.0f, 2.0f, 2.0f, Gray);
+    Cylinder cylinder(1.0f, 0.5f, 3.0f, 20, 20, Gray);
+    Sphere sphere(1.0f, 20, 20, Gray);
     Grid grid(3.0f, 3.0f, 20, 20, Gray);
 
     // -------------------------
@@ -190,9 +190,53 @@ void SceneEditor::Update()
     if (input->KeyPress(VK_ESCAPE))
         window->Close();
 
+    if (input->KeyPress(VK_TAB))
+    {
+        if (!scene.empty())
+        {
+            if(scene.size() == 1 && selectedObjectIndex == 0)
+				selectedObjectIndex = -1; // deseleciona o único objeto na cena
+            else
+            {
+                selectedObjectIndex++;
+
+                if (selectedObjectIndex >= scene.size())
+                {
+                    selectedObjectIndex = 0;
+                }
+            }
+        }
+    }
+
+    if (input->KeyPress(VK_DELETE))
+    {
+        // Verifica se há de fato um objeto selecionado e válido
+        if (selectedObjectIndex >= 0 && selectedObjectIndex < scene.size())
+        {
+            // 1. Libera a memória alocada para os buffers deste objeto
+            delete scene[selectedObjectIndex].mesh;
+            delete scene[selectedObjectIndex].vbuffer;
+            delete scene[selectedObjectIndex].ibuffer;
+            for (int i = 0; i < 4; i++) {
+                delete scene[selectedObjectIndex].cbuffer[i];
+            }
+
+            // 2. Remove do vetor da cena
+            scene.erase(scene.begin() + selectedObjectIndex);
+
+            // 3. Ajusta o índice da seleção
+            if (scene.empty()) {
+                selectedObjectIndex = -1; // Cena ficou vazia
+            }
+            else if (selectedObjectIndex >= scene.size()) {
+                selectedObjectIndex = (int)scene.size() - 1; // Seleciona o anterior se o último foi deletado
+            }
+        }
+    }
+
     if (input->KeyPress('B'))
     {
-        Box box(2.0f, 2.0f, 2.0f, Orange);
+        Box box(2.0f, 2.0f, 2.0f, Gray);
 
         Object boxObj;
         XMStoreFloat4x4(&boxObj.world,
@@ -208,7 +252,7 @@ void SceneEditor::Update()
 
     if (input->KeyPress('C'))
     {
-        Cylinder cylinder(1.0f, 0.5f, 3.0f, 20, 20, Yellow);
+        Cylinder cylinder(1.0f, 0.5f, 3.0f, 20, 20, Gray);
         Object cylinderObj;
         XMStoreFloat4x4(&cylinderObj.world,
             XMMatrixScaling(0.5f, 0.5f, 0.5f));
@@ -223,14 +267,8 @@ void SceneEditor::Update()
 
     if (input->KeyPress('S'))
     {
-        spinning = !spinning;
 
-        if (spinning)
-            timer.Start();
-        else
-            timer.Stop();
-
-        Sphere sphere(1.0f, 20, 20, Crimson);
+        Sphere sphere(1.0f, 20, 20, Gray);
         Object sphereObj;
         XMStoreFloat4x4(&sphereObj.world,
             XMMatrixScaling(0.5f, 0.5f, 0.5f));
@@ -245,7 +283,7 @@ void SceneEditor::Update()
 
     if (input->KeyPress('G'))
     {
-		GeoSphere sphere(1.0f, 3, Crimson);
+		GeoSphere sphere(1.0f, 3, Gray);
         Object sphereObj;
         XMStoreFloat4x4(&sphereObj.world,
             XMMatrixScaling(0.5f, 0.5f, 0.5f));
@@ -277,7 +315,7 @@ void SceneEditor::Update()
 
     if (input->KeyPress('Q'))
     {
-		Quad quad(2.0f, 2.0f, Blue);
+		Quad quad(2.0f, 2.0f, Gray);
 		Object quadObj;
 		quadObj.mesh = new Mesh(quad);
 		XMStoreFloat4x4(&quadObj.world,
@@ -292,7 +330,7 @@ void SceneEditor::Update()
 
     if (input->KeyPress('1'))
     {
-		GenericGeometry geo("Resources/ball.obj", White);
+		GenericGeometry geo("Resources/ball.obj", Gray);
 
         Object geoObj;
         geoObj.mesh = new Mesh(geo);
@@ -308,7 +346,7 @@ void SceneEditor::Update()
 
     if (input->KeyPress('2'))
     {
-        GenericGeometry geo("Resources/thorus.obj", White);
+        GenericGeometry geo("Resources/thorus.obj", Gray);
 
         Object geoObj;
         geoObj.mesh = new Mesh(geo);
@@ -324,7 +362,7 @@ void SceneEditor::Update()
 
     if (input->KeyPress('3'))
     {
-        GenericGeometry geo("Resources/cow.obj", White);
+        GenericGeometry geo("Resources/monkey.obj", Gray);
 
         Object geoObj;
         geoObj.mesh = new Mesh(geo);
@@ -340,7 +378,7 @@ void SceneEditor::Update()
 
     if (input->KeyPress('4'))
     {
-        GenericGeometry geo("Resources/capsule.obj", White);
+        GenericGeometry geo("Resources/capsule.obj", Gray);
 
         Object geoObj;
         geoObj.mesh = new Mesh(geo);
@@ -356,7 +394,7 @@ void SceneEditor::Update()
 
     if (input->KeyPress('5'))
     {
-        GenericGeometry geo("Resources/house.obj", White);
+        GenericGeometry geo("Resources/house.obj", Gray);
 
         Object geoObj;
         geoObj.mesh = new Mesh(geo);
@@ -387,10 +425,10 @@ void SceneEditor::Update()
 
 
     // modifica matriz de mundo da esfera
-    XMStoreFloat4x4(&scene[2].world,
+    /*XMStoreFloat4x4(&scene[2].world,
         XMMatrixScaling(0.5f, 0.5f, 0.5f) *
         XMMatrixRotationY(float(timer.Elapsed())) *
-        XMMatrixTranslation(0.0f, 0.5f, 0.0f));
+        XMMatrixTranslation(0.0f, 0.5f, 0.0f));*/
 }
 
 // ------------------------------------------------------------------------------
@@ -406,6 +444,7 @@ void SceneEditor::Draw()
     graphics->CommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     // desenha objetos da cena
+	int objectIndex = 0;
     if (multipleViews)
     {
         drawDivisorLines();
@@ -415,6 +454,7 @@ void SceneEditor::Draw()
 
         for(int i = 0; i < 4; i++)
         {
+			objectIndex = 0;
             // comandos de configuração específicos a cada objeto
             graphics->CommandList()->RSSetViewports(1, &viewports[i]);
             
@@ -434,6 +474,13 @@ void SceneEditor::Draw()
                 // atualiza o buffer constante com a matriz combinada
                 Constants constants;
                 XMStoreFloat4x4(&constants.WorldViewProj, XMMatrixTranspose(WorldViewProj));
+
+				// lógica de destaque do objeto selecionado
+                if (objectIndex == selectedObjectIndex)
+                    constants.HighlightColor = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+                else
+                    constants.HighlightColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
                 obj.cbuffer[i]->Copy(&constants);
             
                 // comandos de configuração específicos a cada objeto
@@ -447,6 +494,8 @@ void SceneEditor::Draw()
                     obj.mesh->startIndex,
                     obj.mesh->baseVertex,
                     0);
+
+				objectIndex++;
             }
         }
     }
@@ -465,6 +514,13 @@ void SceneEditor::Draw()
             // atualiza o buffer constante com a matriz combinada
             Constants constants;
             XMStoreFloat4x4(&constants.WorldViewProj, XMMatrixTranspose(WorldViewProj));
+
+            // lógica de destaque do objeto selecionado
+            if (objectIndex == selectedObjectIndex)
+                constants.HighlightColor = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+            else
+                constants.HighlightColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
             obj.cbuffer[3]->Copy(&constants);
 
             // comandos de configuração específicos a cada objeto
@@ -478,6 +534,8 @@ void SceneEditor::Draw()
                 obj.mesh->startIndex,
                 obj.mesh->baseVertex,
                 0);
+
+			objectIndex++;
         }
     }
     

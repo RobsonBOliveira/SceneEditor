@@ -20,6 +20,8 @@ struct Constants
       0.0f, 1.0f, 0.0f, 0.0f,
       0.0f, 0.0f, 1.0f, 0.0f,
       0.0f, 0.0f, 0.0f, 1.0f };
+
+    XMFLOAT4 HighlightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 };
 
 struct Object
@@ -56,6 +58,7 @@ private:
     bool multipleViews = false;
 	XMMATRIX views[4]; // frontal, superior, lateral direita, perpectiva
 	D3D12_VIEWPORT viewports[4]; // tl, bl, tr, br
+    int selectedObjectIndex = -1;
     
     vector<Object> scene;
 
